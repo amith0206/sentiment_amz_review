@@ -2,12 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_amazon_reviews(product_url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-    }
-    response = requests.get(product_url, headers=headers)
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
+        response = requests.get(product_url, headers=headers)
+        response.raise_for_status()  # Raise an exception for bad response codes (e.g., 404, 500)
 
-    if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
         reviews = []
         review_elements = soup.find_all('div', {'data-hook': 'review'})
@@ -27,19 +28,23 @@ def get_amazon_reviews(product_url):
             reviews.append({'rating': rating, 'text': review_text})
 
         return reviews
-    else:
-        print("Failed to retrieve the webpage.")
+    except requests.RequestException as e:
+        print("Error during HTTP request:", e)
         return None
-    
+    except Exception as e:
+        print("Error:", e)
+        return None
+
 def get_product_url_by_keyword(search_keyword):
-    search_url = f'https://www.amazon.com/s?k={search_keyword}'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-    }
+    try:
+        search_url = f'https://www.amazon.com/s?k={search_keyword}'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
 
-    response = requests.get(search_url, headers=headers)
+        response = requests.get(search_url, headers=headers)
+        response.raise_for_status()  # Raise an exception for bad response codes (e.g., 404, 500)
 
-    if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
         first_product_element = soup.find('a', {'class': 'a-link-normal', 'data-component-type': 's-product-image'})
 
@@ -49,20 +54,24 @@ def get_product_url_by_keyword(search_keyword):
         else:
             print("No product found for the given keyword.")
             return None
-    else:
-        print("Failed to retrieve search results.")
+    except requests.RequestException as e:
+        print("Error during HTTP request:", e)
+        return None
+    except Exception as e:
+        print("Error:", e)
         return None
 
 if __name__ == "__main__":
-    search_keyword = input('Enter your product name here')
+    search_keyword = input('Enter your product name here : ')
     product_url = get_product_url_by_keyword(search_keyword)
-    product_reviews = get_amazon_reviews(product_url)
-    
-    if product_reviews:
-        for idx, review in enumerate(product_reviews, start=1):
-            print(f"Review {idx}")
-            print(f"Rating: {review['rating']}")
-            print(f"Text: {review['text']}")
-            print("------------------------")
-    
+
+    if product_url:
+        product_reviews = get_amazon_reviews(product_url)
+        if product_reviews:
+            for idx, review in enumerate(product_reviews, start=1):
+                print(f"Review {idx}")
+                print(f"Rating: {review['rating']}")
+                print(f"Text: {review['text']}")
+                print("------------------------")
+  
      
