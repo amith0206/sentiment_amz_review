@@ -54,7 +54,7 @@ def get_product_url_by_keyword(search_keyword):
         return None
 
 if __name__ == "__main__":
-    search_keyword = input('Your product keyword here')
+    search_keyword = input('Enter your product name here')
     product_url = get_product_url_by_keyword(search_keyword)
     product_reviews = get_amazon_reviews(product_url)
     
