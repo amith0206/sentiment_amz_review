@@ -6,7 +6,9 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-def get_firsturl(url,max_retries=5):
+def get_firsturl(max_retries=5):
+    search_term = input("Enter your product name: ")
+    url = f"https://www.amazon.in/s?k={search_term}"
     for retry in range(max_retries):
         try: 
             response = requests.get(url, headers=headers)
@@ -29,13 +31,12 @@ def get_firsturl(url,max_retries=5):
 
     href_value = first_product.get('href')
     result_url = "https://www.amazon.in" + href_value
-    return result_url
+    if result_url:
+        print("First product URL:", result_url)
+    else:
+        print("Product not found") 
 
 if __name__ == "__main__":
-    search_term = input("Enter your product name: ")
-    url = f"https://www.amazon.in/s?k={search_term}"
-    result = get_firsturl(url)
-    if result:
-        print("First product URL:", result)
-    else:
-        print("Product not found")    
+    get_firsturl()
+       
+
