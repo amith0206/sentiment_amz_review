@@ -35,6 +35,7 @@ def get_firsturl(max_retries=5):
         print("First product URL:", result_url)
     else:
         print("Product not found") 
+    return result_url      
 
 if __name__ == "__main__":
     get_firsturl()
