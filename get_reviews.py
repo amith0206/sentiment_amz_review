@@ -1,18 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-import get_first_product_url as p
-import sentiment_analysis as q
+import sentiment_analysis as analysis
+import get_first_product_url as first_url
+import csv
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-def scrape_reviews(url, headers=headers, max_retries=10):
+def scrape_reviews(url, headers=headers, max_retries=20):
     if url is None:
         print("URL not found")
-        return None
-
+        exit()  # Corrected exit statement
     data_str = ""  # Initialize data_str to store review text
     print("Searching for reviews")
     for retry in range(max_retries):
@@ -39,17 +39,25 @@ def scrape_reviews(url, headers=headers, max_retries=10):
     return result
 
 if __name__ == "__main__":
-    url = p.get_firsturl()
+    url = first_url.get_firsturl()
     rev_data = scrape_reviews(url)
-    rev_result=[]
-    if(rev_data):
-        for i in rev_data:
-            if i=="":
-                pass
-            else:
-                rev_result.append(i)
+    rev_result = []
+    
+    if rev_data:
+        rev_result = [i.strip() for i in rev_data if i.strip()]
+        with open("review_with_polarity.csv", 'w', newline='', encoding='utf-8') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(['Review', 'Polarity'])
+            
+            for line in rev_result:
+                polarity = analysis.get_sentiment(line)
+                csv_writer.writerow([line, polarity])
+                
+                print(f'Review: {line}')
+                print(f'Polarity: {polarity}')
+            
     else:
-        print('Thank you')    
+        print('Thank you')
         
 
     
